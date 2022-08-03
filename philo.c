@@ -7,10 +7,14 @@
 typedef struct trhead {
 
 	pthread_t		*t;
-	pthread_mutex_t	lock;
+	pthread_mutex_t	*lock;
 	struct timeval 	start;
 	time_t			end;
-	int				j;
+	int				id;
+	int				time_to_eat;
+	int	 		 	time_to_die;
+	int		 		time_to_sleep;
+	int	 	 	 	num_of_eat;
 } s_thread;
 
 int	ft_atoi(char *s)
@@ -43,11 +47,20 @@ int	ft_atoi(char *s)
 void*	fct(void *x)
 {
 	s_thread *thread = (s_thread*)x;
-	pthread_mutex_lock(&thread->lock);
-	thread->j++;
-	usleep(100000);
-	printf("The philo number : %d\n", thread->j);
-	pthread_mutex_unlock(&thread->lock);
+	pthread_mutex_lock(&thread->lock[thread->id]);
+	printf("thread %d take the left fork\n", thread->id + 1);
+	pthread_mutex_lock(&thread->lock[++thread->id]);
+	printf("thread %d take the right fork\n", thread->id);
+	// usleep(19999);
+	pthread_mutex_unlock(&thread->lock[--thread->id]);
+	pthread_mutex_unlock(&thread->lock[++thread->id]);
+	// printf("philo %d take the right fork\n", thread->id);
+	// thread->id++;
+	// pthread_mutex_lock(&thread->lock[(thread->id + 1) % total_philo]);
+	// printf("philo %d take the left fork\n", thread->id);
+	// usleep(10000);
+	// printf("The philo number : %d\n", thread->id);
+	// pthread_mutex_unlock(&thread->lock[thread->id]);
 	return (NULL);
 }
 
@@ -57,26 +70,29 @@ int main(int ac, char **av)
 	{
 		while (1)
 		{
+			int			start;
 			s_thread	t;
 			int			i;
-			int			start;
 
-			t.j = 0;
+			// t.id = 0;
 			i = 0;
-			t.t = malloc(sizeof(s_thread) * ft_atoi(av[1]));
-			pthread_mutex_init(&t.lock, NULL);
-			t.end = ft_atoi(av[2]);
-			gettimeofday(&t.start, NULL);
-			start = t.start.tv_usec;
+			t.t = malloc(sizeof(pthread_t) * ft_atoi(av[1]));
+			t.lock = malloc(sizeof(pthread_mutex_t) * ft_atoi(av[1]));
 			while (i < ft_atoi(av[1]))
 			{
-				// if (t.start.tv_usec >= start + t.end)
-				// 	return (0);
-				pthread_create(&t.t[i], NULL, &fct, &t);
+				pthread_mutex_init(&t.lock[i], NULL);
 				i++;
 			}
 			i = 0;
 			while (i < ft_atoi(av[1]))
-				pthread_join(t.t[i++], NULL);
+			{
+				t.id = i;
+				pthread_create(&t.t[i], NULL, &fct, &t);
+				i++;
+				usleep(199099);
+			}
+			i = 0;
+			// while (i < ft_atoi(av[1]))
+			// 	pthread_join(t.t[i++], NULL);
 	}	}
 }
