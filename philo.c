@@ -4,24 +4,26 @@
 #include <unistd.h>
 #include <sys/time.h>
 
-typedef struct trhead {
+long long ft_time(long long time);
+typedef struct thread {
 
-	pthread_t		*t;
-	pthread_mutex_t	*lock;
-	struct timeval 	start;
+	pthread_t		t;
+	pthread_mutex_t	lock;
+	long long  		start;
 	time_t			end;
 	int				id;
-	int				time_to_eat;
-	int	 		 	time_to_die;
-	int		 		time_to_sleep;
-	int	 	 	 	num_of_eat;
+	struct thread 	*next;
+	long long		time_to_die;
+	// int				time_to_eat;
+	// int		 		time_to_sleep;
+	// int	 	 	 	num_of_eat;
 } s_thread;
 
-int	ft_atoi(char *s)
+long long	ft_atoi(char *s)
 {
-	int	i;
-	int	num;
-	int	signe;
+	long long	i;
+	long long	num;
+	int			signe;
 
 	i = 0;
 	signe = 1;
@@ -44,55 +46,122 @@ int	ft_atoi(char *s)
 
 }
 
-void*	fct(void *x)
+s_thread *ft_last(s_thread *t)
+{
+	s_thread	*tmp;
+	if (!t)
+		return (NULL);
+	tmp = t;
+	while (tmp->next)
+		tmp = tmp->next;
+	return (tmp);
+}
+
+void ft_lstadd(s_thread **t, s_thread *thread)
+{
+	if (!*t)
+		*t = thread;
+	else
+		ft_last(*t)->next = thread;
+}
+
+void	*fct(void *x)
 {
 	s_thread *thread = (s_thread*)x;
-	pthread_mutex_lock(&thread->lock[thread->id]);
-	printf("thread %d take the left fork\n", thread->id + 1);
-	pthread_mutex_lock(&thread->lock[++thread->id]);
-	printf("thread %d take the right fork\n", thread->id);
-	// usleep(19999);
-	pthread_mutex_unlock(&thread->lock[--thread->id]);
-	pthread_mutex_unlock(&thread->lock[++thread->id]);
-	// printf("philo %d take the right fork\n", thread->id);
-	// thread->id++;
-	// pthread_mutex_lock(&thread->lock[(thread->id + 1) % total_philo]);
-	// printf("philo %d take the left fork\n", thread->id);
-	// usleep(10000);
-	// printf("The philo number : %d\n", thread->id);
-	// pthread_mutex_unlock(&thread->lock[thread->id]);
+	while (ft_time(thread->start) < thread->time_to_die)
+	{
+		pthread_mutex_lock(&thread->lock);
+		printf("thread %d take the left fork\n", thread->id);
+		pthread_mutex_lock(&thread->next->lock);
+		printf("thread %d take the right fork\n", thread->id);
+		pthread_mutex_unlock(&thread->lock);
+		pthread_mutex_unlock(&thread->next->lock);
+		usleep(100);
+	}
 	return (NULL);
+}
+
+void	struct_init(s_thread **ph, int num)
+{
+	int			i;
+	s_thread	*t;
+
+	i = 0;
+	t = malloc(sizeof(s_thread));
+	t->id = 0;
+	while (i < num)
+	{
+		pthread_mutex_init(&t->lock, NULL);
+		i++;
+		t->id = i;
+		t->next = NULL;
+		ft_lstadd(ph, t);
+		t = malloc(sizeof(s_thread));
+	}
+	ft_last(*ph)->next = *ph;
+	free(t);
 }
 
 int main(int ac, char **av)
 {
 	if (ac == 5 || ac == 6)
 	{
-		while (1)
+		long long	start;
+		s_thread	*ph;
+		int			i;
+		
+		i = 0;
+		struct_init(&ph, ft_atoi(av[1]));
+		start = ft_time(0);
+		while (i++ < ft_atoi(av[1]))
 		{
-			int			start;
-			s_thread	t;
-			int			i;
-
-			// t.id = 0;
-			i = 0;
-			t.t = malloc(sizeof(pthread_t) * ft_atoi(av[1]));
-			t.lock = malloc(sizeof(pthread_mutex_t) * ft_atoi(av[1]));
-			while (i < ft_atoi(av[1]))
-			{
-				pthread_mutex_init(&t.lock[i], NULL);
-				i++;
-			}
-			i = 0;
-			while (i < ft_atoi(av[1]))
-			{
-				t.id = i;
-				pthread_create(&t.t[i], NULL, &fct, &t);
-				i++;
-				usleep(199099);
-			}
-			i = 0;
-			// while (i < ft_atoi(av[1]))
-			// 	pthread_join(t.t[i++], NULL);
-	}	}
+			ph->time_to_die = ft_atoi(av[2]);
+			ph->start = start;
+			pthread_create(&ph->t, NULL, &fct, ph);
+			usleep(50);
+			ph = ph->next;
+		}
+		while(1);
+		i = 0;
+	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		// while (1)
+		// {
+		// 	long long end = ft_time(start);
+		// 	if (end > (long long)ft_atoi(av[2]))
+		// 	{
+		// 		printf("philo %d is dead\n", ph->id);
+		// 		return (1);
+		// 	}
+		// }
+		// while (i++ < ft_atoi(av[1]))
+		// {
+		// 	pthread_join(ph->t, NULL);
+		// 	ph = ph->next;
+		// }

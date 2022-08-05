@@ -1,7 +1,8 @@
 NAME = philo
-CFLAG = -Wall -Wextra -Werror -g -fsanitize=thread
+# CFLAG = -Wall -Wextra -Werror -g -fsanitize=thread
 CC = gcc
 SRCS = philo.c\
+	   ft_time.c\
 
 RM = rm -rf
 OBJ = $(SRCS:.c=.o)
