@@ -68,15 +68,22 @@ void ft_lstadd(s_thread **t, s_thread *thread)
 void	*fct(void *x)
 {
 	s_thread *thread = (s_thread*)x;
-	while (ft_time(thread->start) < thread->time_to_die)
+	while (1)
 	{
-		pthread_mutex_lock(&thread->lock);
-		printf("thread %d take the left fork\n", thread->id);
-		pthread_mutex_lock(&thread->next->lock);
-		printf("thread %d take the right fork\n", thread->id);
+		usleep(300);
+		if (ft_time(thread->start) > thread->time_to_die)
+		{
+			printf("	%lld %d is dead\n", thread->start, thread->id);
+			return 0;
+		}
+		if (pthread_mutex_lock(&thread->lock) == 0)
+			printf("	%lld %d has taken the left fork\n", ft_time(thread->start), thread->id);
+		if (pthread_mutex_lock(&thread->next->lock) == 0)
+			printf("	%lld %d has taken the right fork\n", ft_time(thread->start), thread->id);
+		else
+			printf("	%lld %d is thinking", ft_time(thread->start), thread->id); 
 		pthread_mutex_unlock(&thread->lock);
 		pthread_mutex_unlock(&thread->next->lock);
-		usleep(100);
 	}
 	return (NULL);
 }
@@ -121,8 +128,13 @@ int main(int ac, char **av)
 			usleep(50);
 			ph = ph->next;
 		}
-		while(1);
 		i = 0;
+		while(i++ < ft_atoi(av[1]))
+		{
+			if (pthread_join(ph->t, NULL) == 0)
+				return 0;
+			ph = ph->next;
+		}
 	}
 }
 
