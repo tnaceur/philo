@@ -82,7 +82,7 @@ s_thread *ft_last(s_thread *t)
 	if (!t)
 		return (NULL);
 	tmp = t;
-	while (tmp->next)
+	while (tmp->next != NULL)
 		tmp = tmp->next;
 	return (tmp);
 }
