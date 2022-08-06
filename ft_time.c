@@ -19,8 +19,8 @@ long long ft_time(long long time)
 //     long long time = ft_time(0);
 //     while (1)
 //     {
-//         usleep(100000);
 //         printf("%lld\n", ft_time(time));
+//         usleep(100000);
 //     }
 // }
 
