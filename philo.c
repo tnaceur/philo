@@ -79,8 +79,6 @@ s_thread *ft_last(s_thread *t)
 {
 	s_thread	*tmp;
 
-
-
 	if (!t)
 		return (NULL);
 	tmp = t;
