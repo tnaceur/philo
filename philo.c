@@ -7,9 +7,9 @@
 long long ft_time(long long time);
 
 typedef struct	t_data	{
-	long long		 	 	start;
 	long long				dead;
 	long long				time_to_eat;
+	long long				start;
 	long long				time_to_die;
 	long long		 		time_to_sleep;
 	long long	 	 	 	number_of_eat;
@@ -82,7 +82,7 @@ s_thread *ft_last(s_thread *t)
 	if (!t)
 		return (NULL);
 	tmp = t;
-	while (tmp->next != NULL)
+	while (tmp->next)
 		tmp = tmp->next;
 	return (tmp);
 }
@@ -135,11 +135,8 @@ void	*routine(void *ph)
 
 void data_init(s_data *data, char **av)
 {
-	long long	start;
-
-	start = ft_time(0);
+	data->start = ft_time(0);
 	data->dead = 0;
-	data->start = start;
 	data->time_to_die = ft_atoi(av[2]);
 	data->time_to_eat = ft_atoi(av[3]);
 	data->time_to_sleep = ft_atoi(av[4]);
@@ -147,22 +144,23 @@ void data_init(s_data *data, char **av)
 		data->number_of_eat = ft_atoi(av[5]);
 }
 
+
 void	struct_init(s_thread **ph, char **av)
 {
 	int			i;
 	s_thread	*t;
-	s_data		data;
+	s_data		*data;
 
 	i = 0;
 	t = malloc(sizeof(s_thread));
-	t->id = 0;
-	data_init(&data, av);
+	data = malloc(sizeof(s_data));
+	data_init(data, av);
 	while (i < ft_atoi(av[1]))
 	{
 		pthread_mutex_init(&t->lock, NULL);
 		i++;
 		t->id = i;
-		t->data = &data;
+		t->data = data;
 		t->next = NULL;
 		ft_lstadd(ph, t);
 		t = malloc(sizeof(s_thread));
@@ -177,12 +175,13 @@ int main(int ac, char **av)
 	{
 		s_thread	*ph;
 		int			i;
+		long long	start;
 		
 		i = 0;
 		struct_init(&ph, av);
 		while (i++ < ft_atoi(av[1]))
 		{
-			pthread_create(&ph->t, NULL, &routine, ph);
+			pthread_create(&ph->t, NULL, &routine, &(*ph));
 			usleep(500);
 			ph = ph->next;
 		}
