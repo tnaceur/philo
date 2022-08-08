@@ -178,6 +178,7 @@ int main(int ac, char **av)
 		long long	start;
 		
 		i = 0;
+		ph = 0;
 		struct_init(&ph, av);
 		while (i++ < ft_atoi(av[1]))
 		{
