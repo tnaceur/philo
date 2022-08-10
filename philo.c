@@ -99,20 +99,20 @@ void	*routine(void *ph)
 {
 	s_thread	*t;
 	int 		count;
+	long long	last_meal;
 	
 	t = (s_thread*)ph;
 	count  = 0;
+	last_meal = t->data->start;
 	while (1)
 	{
 		count = 0;
-		if (t->data->dead == 1)
-			return (NULL);
-		if (pthread_mutex_lock(&t->lock) == 0)
+		if (!pthread_mutex_lock(&t->lock))
 		{
 			printf("%lld %d has taken a fork\n", ft_time(t->data->start), t->id);
 			count++;
 		}
-		if (pthread_mutex_lock(&t->next->lock) == 0)
+		if (!pthread_mutex_lock(&t->next->lock))
 		{
 			printf("%lld %d has taken a fork\n", ft_time(t->data->start), t->id);
 			count++;
@@ -120,15 +120,25 @@ void	*routine(void *ph)
 		if (count == 2)
 		{
 			printf("%lld %d is eating\n", ft_time(t->data->start), t->id);
-			usleep(t->data->time_to_eat);
+			for (int i = 0; i < t->data->time_to_eat; i++)
+				usleep(1000);
+			last_meal = ft_time(t->data->start);
 		}
-		else if (count != 2)
-			printf("%lld %d is thinking\n", ft_time(t->data->start), t->id);
-		else
+		printf("%lld %d is thinking\n", ft_time(t->data->start), t->id);
+		printf("%lld %d is sleeping\n", ft_time(t->data->start), t->id);
+		if (t->data->time_to_die > ft_time(t->data->start) - last_meal)
 		{
-			printf("%lld %d is sleeping\n", ft_time(t->data->start), t->id);
-			usleep(t->data->time_to_sleep);
+			t->data->dead = 1;
+			printf("%lld %d is dead\n", ft_time(t->data->start), t->id);
 		}
+		if (t->data->dead == 1)
+			return (NULL);
+		for (int i = 0; i < t->data->time_to_sleep; i++)
+			usleep(1000);
+		pthread_mutex_unlock(&t->lock);
+		pthread_mutex_unlock(&t->next->lock);
+		for (int i = 0; i < 100; i++)
+			usleep(1);
 	}
 	return (NULL);
 }
@@ -178,7 +188,6 @@ int main(int ac, char **av)
 		long long	start;
 		
 		i = 0;
-		ph = 0;
 		struct_init(&ph, av);
 		while (i++ < ft_atoi(av[1]))
 		{
