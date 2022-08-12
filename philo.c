@@ -196,11 +196,12 @@ int main(int ac, char **av)
 		long long	start;
 		
 		i = 0;
+		ph = NULL;
 		struct_init(&ph, av);
 		while (i++ < ft_atoi(av[1]))
 		{
 			pthread_create(&ph->t, NULL, &routine, &(*ph));
-			usleep(1000);
+			usleep(300);
 			ph = ph->next;
 		}
 		check_dead(ph);
