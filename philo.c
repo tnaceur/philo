@@ -13,6 +13,7 @@ typedef struct	t_data	{
 	long long				time_to_die;
 	long long		 		time_to_sleep;
 	long long	 	 	 	number_of_eat;
+	long long		 	 	last_meal;
 }	s_data;
 
 typedef struct thread {
@@ -25,7 +26,13 @@ typedef struct thread {
 }	s_thread;
 
 
+void	my_usleep(s_thread *ph, long long time)
+{
+	long long	current_time;
 
+	current_time = ft_time(ph->data->start) + time;
+	while (current_time > ft_time(ph->data->start));
+}
 
 int	check_args(char **args)
 {
@@ -95,15 +102,27 @@ void ft_lstadd(s_thread **t, s_thread *thread)
 		ft_last(*t)->next = thread;
 }
 
+int	check_dead(s_thread *ph)
+{
+	while (ph)
+	{
+		if (ph->data->time_to_die <= ft_time(ph->data->start) - ph->data->last_meal)
+		{
+			printf("%lld %d is dead\n", ft_time(ph->data->start), ph->id);
+			return (0);
+		}
+		ph = ph->next;
+	}
+	return (1);
+}
+
 void	*routine(void *ph)
 {
 	s_thread	*t;
 	int 		count;
-	long long	last_meal;
 	
 	t = (s_thread*)ph;
 	count  = 0;
-	last_meal = t->data->start;
 	while (1)
 	{
 		count = 0;
@@ -120,25 +139,14 @@ void	*routine(void *ph)
 		if (count == 2)
 		{
 			printf("%lld %d is eating\n", ft_time(t->data->start), t->id);
-			for (int i = 0; i < t->data->time_to_eat; i++)
-				usleep(1000);
-			last_meal = ft_time(t->data->start);
+			my_usleep(t, t->data->time_to_eat);
+			t->data->last_meal = ft_time(t->data->start);
 		}
-		printf("%lld %d is thinking\n", ft_time(t->data->start), t->id);
 		printf("%lld %d is sleeping\n", ft_time(t->data->start), t->id);
-		if (t->data->time_to_die > ft_time(t->data->start) - last_meal)
-		{
-			t->data->dead = 1;
-			printf("%lld %d is dead\n", ft_time(t->data->start), t->id);
-		}
-		if (t->data->dead == 1)
-			return (NULL);
-		for (int i = 0; i < t->data->time_to_sleep; i++)
-			usleep(1000);
+		my_usleep(t, t->data->time_to_sleep);
+		printf("%lld %d is thinking\n", ft_time(t->data->start), t->id);
 		pthread_mutex_unlock(&t->lock);
 		pthread_mutex_unlock(&t->next->lock);
-		for (int i = 0; i < 100; i++)
-			usleep(1);
 	}
 	return (NULL);
 }
@@ -192,15 +200,9 @@ int main(int ac, char **av)
 		while (i++ < ft_atoi(av[1]))
 		{
 			pthread_create(&ph->t, NULL, &routine, &(*ph));
-			usleep(500);
+			usleep(1000);
 			ph = ph->next;
 		}
-		i = 0;
-		while(i++ < ft_atoi(av[1]))
-		{
-			if (pthread_join(ph->t, NULL))
-				return 0;
-			ph = ph->next;
-		}
+		check_dead(ph);
 	}
 }
