@@ -201,8 +201,8 @@ int main(int ac, char **av)
 		while (i++ < ft_atoi(av[1]))
 		{
 			pthread_create(&ph->t, NULL, &routine, &(*ph));
-			usleep(300);
 			ph = ph->next;
+			usleep(300);
 		}
 		check_dead(ph);
 	}
