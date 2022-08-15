@@ -1,7 +1,7 @@
 make --dry-run --always-make --keep-going --print-directory
-make: Entering directory `/Users/tahanaceur/Desktop/philo'
+make: Entering directory `/Users/tnaceur/Desktop/philo'
 gcc    -c -o philo.o philo.c
 gcc    -c -o ft_time.o ft_time.c
 gcc -Wall -Wextra -Werror -g philo.o ft_time.o -o philo
-make: Leaving directory `/Users/tahanaceur/Desktop/philo'
+make: Leaving directory `/Users/tnaceur/Desktop/philo'
  
