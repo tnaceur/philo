@@ -138,6 +138,7 @@ void ft_lstadd(s_thread **t, s_thread *thread)
 void	*check_dead(void *t)
 {
 	s_thread *ph;
+	int		i;
 
 	ph = (s_thread*)t;
 	while (ph)
@@ -149,16 +150,16 @@ void	*check_dead(void *t)
 		}
 		if (ph->data->number_of_eat != -1)
 		{
-			int	i;
-
+			while (1) {
 			i = 0;
-			while (ph->eat == ph->data->number_of_eat && i < ph->data->number_of_philo)
+			while (ph->eat >= ph->data->number_of_eat && i < ph->data->number_of_philo)
 			{
 				ph = ph->next;
 				i++;
 			}
 			if (i == ph->data->number_of_philo)
 				return (NULL);
+			}
 		}
 		usleep(200);
 		ph = ph->next;
