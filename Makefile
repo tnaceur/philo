@@ -1,8 +1,9 @@
 NAME = philo
-CFLAG = -Wall -Wextra -Werror -g
+CFLAG = -Wall -Wextra -Werror #-fsanitize=thread
 CC = gcc
 SRCS = philo.c\
-	   ft_time.c\
+	   philo_utils2.c\
+	   philo_utils.c\
 
 RM = rm -rf
 OBJ = $(SRCS:.c=.o)
