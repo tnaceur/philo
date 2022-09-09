@@ -99,6 +99,7 @@ int	main(int ac, char **av)
 	{
 		i = 0;
 		ph = NULL;
+		t = 0;
 		struct_init(&ph, av);
 		while (i++ < ft_atoi(av[1]))
 		{
