@@ -91,7 +91,6 @@ int	main(int ac, char **av)
 {
 	t_thread	*ph;
 	int			i;
-	pthread_t	t;
 
 	if (check_args(av) && (ac == 5 || ac == 6)
 		&& ft_atoi(av[1]) > 0 && ft_atoi(av[2]) > 0
@@ -99,7 +98,6 @@ int	main(int ac, char **av)
 	{
 		i = 0;
 		ph = NULL;
-		t = 0;
 		struct_init(&ph, av);
 		while (i++ < ft_atoi(av[1]))
 		{

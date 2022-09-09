@@ -8,12 +8,12 @@ SRCS = philo.c\
 RM = rm -rf
 OBJ = $(SRCS:.c=.o)
 
+
 all : $(NAME)
 
 $(NAME) : $(OBJ)
 		   $(CC) $(CFLAG) $(OBJ) -o $(NAME)
-%.o:%.c
-	$(CC) $(CFLAG) -c $<
+
 clean :
 		$(RM) $(OBJ)
 
